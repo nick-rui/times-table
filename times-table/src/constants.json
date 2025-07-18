@@ -1,0 +1,9 @@
+{
+  "MIN_MULTIPLIER": 1,
+  "MAX_MULTIPLIER": 20,
+  "DEFAULT_MIN": 2,
+  "DEFAULT_MAX": 12,
+  "APP_TITLE": "Times Table Practice",
+  "CORRECT_FEEDBACK": ["Great!", "Correct!", "Nice!", "Well done!"],
+  "INCORRECT_FEEDBACK": ["Oops!", "Try again!", "Not quite.", "Keep practicing!"]
+} 

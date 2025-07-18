@@ -1,0 +1,122 @@
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #fff;
+}
+
+body, #root {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-container {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #000;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.01em;
+  color: #000;
+}
+
+.settings {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+.settings label {
+  display: flex;
+  flex-direction: column;
+  font-size: 1rem;
+  color: #000;
+}
+.settings input[type="number"] {
+  margin-top: 0.3rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid #ddd;
+  border-radius: 0.4rem;
+  width: 4rem;
+  font-size: 1.1rem;
+  text-align: center;
+  color: #000;
+  background: #fff;
+}
+
+.question-area {
+  margin-bottom: 1.5rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.question {
+  font-size: 2.2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  letter-spacing: 0.02em;
+  color: #000;
+}
+.answer-input {
+  font-size: 2rem;
+  padding: 0.4rem 1rem;
+  border: 2px solid #0077ff;
+  border-radius: 0.5rem;
+  width: 7rem;
+  text-align: center;
+  margin-bottom: 0.7rem;
+  outline: none;
+  transition: border 0.2s;
+  color: #000;
+  background: #fff;
+}
+.answer-input:focus {
+  border-color: #005fcc;
+}
+.feedback {
+  font-size: 1.2rem;
+  margin-top: 0.2rem;
+  min-height: 1.5em;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+.feedback.correct {
+  color: #1cbf4b;
+}
+.feedback.incorrect {
+  color: #e23c3c;
+}
+.stats {
+  display: flex;
+  gap: 1.2rem;
+  font-size: 1.1rem;
+  margin-top: 1.2rem;
+  color: #000;
+}
+@media (max-width: 500px) {
+  .app-container {
+    max-width: 98vw;
+    padding: 1rem 0.2rem;
+  }
+  .question {
+    font-size: 1.5rem;
+  }
+  .answer-input {
+    font-size: 1.2rem;
+    width: 4.5rem;
+  }
+}
