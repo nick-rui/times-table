@@ -16,10 +16,12 @@ function getRandomFeedback(arr: string[]) {
 
 function App() {
   const constants: Constants = constantsJson;
-  const [min, setMin] = useState(constants.DEFAULT_MIN);
-  const [max, setMax] = useState(constants.DEFAULT_MAX);
-  const [a, setA] = useState(getRandomInt(min, max));
-  const [b, setB] = useState(getRandomInt(min, max));
+  const [firstMin, setFirstMin] = useState(constants.DEFAULT_FIRST_MIN);
+  const [firstMax, setFirstMax] = useState(constants.DEFAULT_FIRST_MAX);
+  const [secondMin, setSecondMin] = useState(constants.DEFAULT_SECOND_MIN);
+  const [secondMax, setSecondMax] = useState(constants.DEFAULT_SECOND_MAX);
+  const [a, setA] = useState(getRandomInt(firstMin, firstMax));
+  const [b, setB] = useState(getRandomInt(secondMin, secondMax));
   const [userAnswer, setUserAnswer] = useState('');
   const [feedback, setFeedback] = useState('');
   const [feedbackType, setFeedbackType] = useState<'correct' | 'incorrect' | ''>('');
@@ -28,34 +30,40 @@ function App() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Generate a new question, avoiding immediate repeats (order-insensitive)
-  const nextQuestion = (newMin = min, newMax = max) => {
-    let newA: number, newB: number;
+  const nextQuestion = () => {
+    let firstNum: number, secondNum: number;
     let tries = 0;
     do {
-      newA = getRandomInt(newMin, newMax);
-      newB = getRandomInt(newMin, newMax);
+      firstNum = getRandomInt(firstMin, firstMax);
+      secondNum = getRandomInt(secondMin, secondMax);
       tries++;
       // If only one possible pair, break to avoid infinite loop
-      if (newMax - newMin === 0) break;
+      if ((firstMax - firstMin === 0) && (secondMax - secondMin === 0)) break;
     } while (
       lastPair &&
-      ((newA === lastPair[0] && newB === lastPair[1]) || (newA === lastPair[1] && newB === lastPair[0])) &&
+      ((firstNum === lastPair[0] && secondNum === lastPair[1]) || (firstNum === lastPair[1] && secondNum === lastPair[0])) &&
       tries < 10
     );
-    setA(newA);
-    setB(newB);
-    setLastPair([newA, newB]);
+    
+    // Randomly swap the order for presentation
+    const shouldSwap = Math.random() < 0.5;
+    const displayA = shouldSwap ? secondNum : firstNum;
+    const displayB = shouldSwap ? firstNum : secondNum;
+    
+    setA(displayA);
+    setB(displayB);
+    setLastPair([firstNum, secondNum]); // Store the original pair for repeat detection
     setUserAnswer('');
     setFeedback('');
     setFeedbackType('');
     setTimeout(() => inputRef.current?.focus(), 50);
   };
 
-  // When min/max changes, reset question
+  // When ranges change, reset question
   useEffect(() => {
-    nextQuestion(min, max);
+    nextQuestion();
     // eslint-disable-next-line
-  }, [min, max]);
+  }, [firstMin, firstMax, secondMin, secondMax]);
 
   // Handle answer submission
   const handleSubmit = (e: React.FormEvent) => {
@@ -93,26 +101,50 @@ function App() {
     <div className="app-container">
       <h1>{constants.APP_TITLE}</h1>
       <div className="settings">
-        <label>
-          Min:
-          <input
-            type="number"
-            min={constants.MIN_MULTIPLIER}
-            max={max}
-            value={min}
-            onChange={e => setMin(Math.max(constants.MIN_MULTIPLIER, Math.min(Number(e.target.value), max)))}
-          />
-        </label>
-        <label>
-          Max:
-          <input
-            type="number"
-            min={min}
-            max={constants.MAX_MULTIPLIER}
-            value={max}
-            onChange={e => setMax(Math.min(constants.MAX_MULTIPLIER, Math.max(Number(e.target.value), min)))}
-          />
-        </label>
+        <div className="range-group">
+          <label>
+            First Number Min:
+            <input
+              type="number"
+              min={constants.MIN_MULTIPLIER}
+              max={firstMax}
+              value={firstMin}
+              onChange={e => setFirstMin(Math.max(constants.MIN_MULTIPLIER, Math.min(Number(e.target.value), firstMax)))}
+            />
+          </label>
+          <label>
+            First Number Max:
+            <input
+              type="number"
+              min={firstMin}
+              max={constants.MAX_MULTIPLIER}
+              value={firstMax}
+              onChange={e => setFirstMax(Math.min(constants.MAX_MULTIPLIER, Math.max(Number(e.target.value), firstMin)))}
+            />
+          </label>
+        </div>
+        <div className="range-group">
+          <label>
+            Second Number Min:
+            <input
+              type="number"
+              min={constants.MIN_MULTIPLIER}
+              max={secondMax}
+              value={secondMin}
+              onChange={e => setSecondMin(Math.max(constants.MIN_MULTIPLIER, Math.min(Number(e.target.value), secondMax)))}
+            />
+          </label>
+          <label>
+            Second Number Max:
+            <input
+              type="number"
+              min={secondMin}
+              max={constants.MAX_MULTIPLIER}
+              value={secondMax}
+              onChange={e => setSecondMax(Math.min(constants.MAX_MULTIPLIER, Math.max(Number(e.target.value), secondMin)))}
+            />
+          </label>
+        </div>
       </div>
       <div className="question-area">
         <span className="question">{a} × {b} = ?</span>
