@@ -70,6 +70,22 @@ h1 {
   background: #fff;
 }
 
+.start-button {
+  background: #0077ff;
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-bottom: 1rem;
+}
+.start-button:hover {
+  background: #005fcc;
+}
+
 .question-area {
   margin-bottom: 1.5rem;
   width: 100%;
@@ -116,13 +132,16 @@ h1 {
   color: #e23c3c;
 }
 .stats {
-  display: flex;
-  gap: 1.2rem;
-  font-size: 1.1rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+  font-size: 1rem;
   margin-top: 1.2rem;
   color: #000;
   justify-content: center;
   text-align: center;
+  width: 100%;
+  max-width: 300px;
 }
 @media (max-width: 500px) {
   .app-container {
@@ -144,7 +163,11 @@ h1 {
     width: 3rem;
   }
   .stats {
-    flex-direction: column;
+    grid-template-columns: 1fr;
     gap: 0.5rem;
+  }
+  .start-button {
+    padding: 0.8rem 1.5rem;
+    font-size: 1.1rem;
   }
 }

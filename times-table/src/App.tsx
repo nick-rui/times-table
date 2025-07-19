@@ -14,6 +14,13 @@ function getRandomFeedback(arr: string[]) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
+function formatTime(ms: number): string {
+  const seconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
+
 function App() {
   const constants: Constants = constantsJson;
   const [firstMin, setFirstMin] = useState(constants.DEFAULT_FIRST_MIN);
@@ -27,7 +34,23 @@ function App() {
   const [feedbackType, setFeedbackType] = useState<'correct' | 'incorrect' | ''>('');
   const [stats, setStats] = useState({ correct: 0, incorrect: 0, total: 0, startTime: Date.now(), times: [] as number[] });
   const [lastPair, setLastPair] = useState<[number, number] | null>(null);
+  const [sessionStarted, setSessionStarted] = useState(false);
+  const [sessionStartTime, setSessionStartTime] = useState<number | null>(null);
+  const [totalSessionTime, setTotalSessionTime] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Update total session time
+  useEffect(() => {
+    if (!sessionStarted) return;
+    
+    const interval = setInterval(() => {
+      if (sessionStartTime) {
+        setTotalSessionTime(Date.now() - sessionStartTime);
+      }
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [sessionStarted, sessionStartTime]);
 
   // Generate a new question, avoiding immediate repeats (order-insensitive)
   const nextQuestion = () => {
@@ -65,9 +88,20 @@ function App() {
     // eslint-disable-next-line
   }, [firstMin, firstMax, secondMin, secondMax]);
 
+  // Handle start button
+  const handleStart = () => {
+    setSessionStarted(true);
+    setSessionStartTime(Date.now());
+    setTotalSessionTime(0);
+    setStats({ correct: 0, incorrect: 0, total: 0, startTime: Date.now(), times: [] });
+    nextQuestion();
+  };
+
   // Handle answer submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!sessionStarted) return;
+    
     const answer = parseInt(userAnswer.trim(), 10);
     const correct = a * b;
     const now = Date.now();
@@ -91,11 +125,14 @@ function App() {
 
   // Keyboard shortcut: Enter submits
   useEffect(() => {
-    inputRef.current?.focus();
-  }, [a, b]);
+    if (sessionStarted) {
+      inputRef.current?.focus();
+    }
+  }, [a, b, sessionStarted]);
 
   // Stats
   const avgTime = stats.times.length ? (stats.times.reduce((a, b) => a + b, 0) / stats.times.length / 1000).toFixed(2) : '-';
+  const accuracy = stats.total > 0 ? ((stats.correct / stats.total) * 100).toFixed(1) : '0.0';
 
   return (
     <div className="app-container">
@@ -146,30 +183,41 @@ function App() {
           </label>
         </div>
       </div>
-      <div className="question-area">
-        <span className="question">{a} × {b} = ?</span>
-        <form onSubmit={handleSubmit} autoComplete="off">
-          <input
-            ref={inputRef}
-            type="number"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            className="answer-input"
-            value={userAnswer}
-            onChange={e => setUserAnswer(e.target.value)}
-            autoFocus
-            required
-          />
-        </form>
-        {feedback && (
-          <div className={`feedback ${feedbackType}`}>{feedback}</div>
-        )}
-      </div>
-      <div className="stats">
-        <span>Correct: {stats.correct}</span>
-        <span>Incorrect: {stats.incorrect}</span>
-        <span>Avg Time: {avgTime}s</span>
-      </div>
+      
+      {!sessionStarted ? (
+        <button className="start-button" onClick={handleStart}>
+          Start Practice Session
+        </button>
+      ) : (
+        <>
+          <div className="question-area">
+            <span className="question">{a} × {b} = ?</span>
+            <form onSubmit={handleSubmit} autoComplete="off">
+              <input
+                ref={inputRef}
+                type="number"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                className="answer-input"
+                value={userAnswer}
+                onChange={e => setUserAnswer(e.target.value)}
+                autoFocus
+                required
+              />
+            </form>
+            {feedback && (
+              <div className={`feedback ${feedbackType}`}>{feedback}</div>
+            )}
+          </div>
+          <div className="stats">
+            <span>Correct: {stats.correct}</span>
+            <span>Incorrect: {stats.incorrect}</span>
+            <span>Accuracy: {accuracy}%</span>
+            <span>Avg Time: {avgTime}s</span>
+            <span>Total Time: {formatTime(totalSessionTime)}</span>
+          </div>
+        </>
+      )}
     </div>
   );
 }
